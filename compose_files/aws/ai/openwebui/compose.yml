@@ -1,0 +1,22 @@
+services:
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:ollama
+    container_name: open-webui
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    ports:
+      - "3000:8080"
+    volumes:
+      # - ollama:/root/.ollama                # docker volume
+      - /var/lib/ollama/.ollama:/root/.ollama # mapping a local volume so open-webui and ollama can share all models downloaded from one or the other
+      - open-webui:/app/backend/data
+    restart: always
+
+volumes:
+  # ollama:
+  open-webui:
