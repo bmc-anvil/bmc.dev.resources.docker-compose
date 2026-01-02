@@ -1,6 +1,6 @@
 services:
   open-webui:
-    image: ghcr.io/open-webui/open-webui:ollama
+    image: ghcr.io/open-webui/open-webui:cuda # open-webui only with support for cuda
     container_name: open-webui
     deploy:
       resources:
@@ -9,14 +9,21 @@ services:
             - driver: nvidia
               count: all
               capabilities: [ gpu ]
-    ports:
-      - "3000:8080"
+    network_mode: host
+    environment:
+      OLLAMA_BASE_URL: http://127.0.0.1:11434
+      WEBUI_AUTH: False
+      PORT: 3001
     volumes:
-      # - ollama:/root/.ollama                # docker volume
-      - /var/lib/ollama/.ollama:/root/.ollama # mapping a local volume so open-webui and ollama can share all models downloaded from one or the other
       - open-webui:/app/backend/data
     restart: always
 
 volumes:
-  # ollama:
   open-webui:
+
+# documentation:
+# ---
+## ollama:
+###  https://www.ollama.com/
+## openwebui:
+###  https://docs.openwebui.com/getting-started/quick-start/starting-with-ollama/
