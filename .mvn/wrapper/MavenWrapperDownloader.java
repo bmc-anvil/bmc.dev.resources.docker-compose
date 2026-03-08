@@ -31,8 +31,8 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public final class MavenWrapperDownloader {
 
-    private static final boolean VERBOSE         = Boolean.parseBoolean(System.getenv("MVNW_VERBOSE"));
-    private static final String  WRAPPER_VERSION = "3.3.2";
+    private static final boolean VERBOSE = Boolean.parseBoolean(System.getenv("MVNW_VERBOSE"));
+    private static final String WRAPPER_VERSION = "3.3.4";
 
     public static void main(String[] args) {
 
@@ -45,12 +45,12 @@ public final class MavenWrapperDownloader {
 
         try {
             log(" - Downloader started");
-            final URL wrapperUrl = URI.create(args[0])
-                                      .toURL();
-            final String jarPath = args[1].replace("..", ""); // Sanitize path
-            final Path wrapperJarPath = Paths.get(jarPath)
-                                             .toAbsolutePath()
-                                             .normalize();
+            final URL  wrapperUrl     = URI.create(args[0]).toURL();
+            final Path baseDir        = Paths.get(".").toAbsolutePath().normalize();
+            final Path wrapperJarPath = baseDir.resolve(args[1]).normalize();
+            if (!wrapperJarPath.startsWith(baseDir)) {
+                throw new IOException("Invalid path: outside of allowed directory");
+            }
             downloadFileFromURL(wrapperUrl, wrapperJarPath);
             log("Done");
         } catch (IOException e) {
@@ -62,13 +62,13 @@ public final class MavenWrapperDownloader {
         }
     }
 
-    private static void downloadFileFromURL(URL wrapperUrl, Path wrapperJarPath) throws IOException {
+    private static void downloadFileFromURL(URL wrapperUrl, Path wrapperJarPath)
+            throws IOException {
 
         log(" - Downloading to: " + wrapperJarPath);
         if (System.getenv("MVNW_USERNAME") != null && System.getenv("MVNW_PASSWORD") != null) {
             final String username = System.getenv("MVNW_USERNAME");
-            final char[] password = System.getenv("MVNW_PASSWORD")
-                                          .toCharArray();
+            final char[] password = System.getenv("MVNW_PASSWORD").toCharArray();
             Authenticator.setDefault(new Authenticator() {
                 @Override
                 protected PasswordAuthentication getPasswordAuthentication() {
@@ -77,13 +77,15 @@ public final class MavenWrapperDownloader {
                 }
             });
         }
-        Path temp = wrapperJarPath.getParent()
-                                  .resolve(wrapperJarPath.getFileName() + "." + Long.toUnsignedString(ThreadLocalRandom.current()
-                                                                                                                       .nextLong()) + ".tmp");
+        Path temp = wrapperJarPath
+                .getParent()
+                .resolve(wrapperJarPath.getFileName() + "."
+                         + Long.toUnsignedString(ThreadLocalRandom.current().nextLong()) + ".tmp");
         try (InputStream inStream = wrapperUrl.openStream()) {
             Files.copy(inStream, temp, StandardCopyOption.REPLACE_EXISTING);
             Files.move(temp, wrapperJarPath, StandardCopyOption.REPLACE_EXISTING);
-        } finally {
+        }
+        finally {
             Files.deleteIfExists(temp);
         }
         log(" - Downloader complete");
