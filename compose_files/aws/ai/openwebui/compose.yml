@@ -2,6 +2,7 @@ services:
   open-webui:
     image: ghcr.io/open-webui/open-webui:cuda # open-webui only with support for cuda
     container_name: open-webui
+    pull_policy: always
     deploy:
       resources:
         reservations:
@@ -14,6 +15,7 @@ services:
       OLLAMA_BASE_URL: http://127.0.0.1:11434
       WEBUI_AUTH: False
       PORT: 3001
+#      GLOBAL_LOG_LEVEL: DEBUG
     volumes:
       - open-webui:/app/backend/data
     restart: always
